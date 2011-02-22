@@ -1,0 +1,5 @@
+create-install-images create install DVD/CD images of RFRemix and Fedora. It
+supports 12, 13, 14 version and rawhide.
+
+create-live create live CD/DVD images of RFRemix only. Also it can create only
+current OS release images.
