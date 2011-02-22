@@ -84,10 +84,21 @@ RAWHIDEKS="/usr/share/spin-kickstarts/$LCDIST-install-rawhide-$LCDIST.ks"
 RELEASEKS="/usr/share/spin-kickstarts/$LCDIST-install-$LCDIST.ks"
 LOGFILE="/var/tmp/$LCDIST-build.log"
 
+SUPPORT_VERSIONS="13 14 15 rawhide"
+
 # check version
 MOCKVER=$(echo $VERSION | awk -F"." '{ print $1 }' | awk -F"-" '{ print $1 }')
 
-if [ "$MOCKVER" != "12" -a "$MOCKVER" != "13" -a "$MOCKVER" != "14" -a "$MOCKVER" != "rawhide" ]; then
+for ver in $SUPPORT_VERSIONS; do
+  if [ "$MOCKVER" != "$ver" ]; then
+    UNKNOWN="1"
+  else
+    UNKNOWN="0"
+    break
+  fi
+done
+
+if [ "$UNKNOWN" == "1" ]; then
   echo "Unknown version. Abort..."
   usage
 fi
