@@ -1,6 +1,6 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.3
+Version:	0.4
 Release:	1
 
 Group:		Development/Tools
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 28 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.4-1
+- adapt to using Fedora 15 with new pungi
+
 * Tue Oct 25 2010 Arkady L. Shane <ashejn@yandex-team.ru> - 0.3-1
 - do not build MeeGo and Games lives at build "all"
 
