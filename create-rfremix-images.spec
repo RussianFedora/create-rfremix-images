@@ -1,12 +1,12 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.4
+Version:	0.5
 Release:	1
 
 Group:		Development/Tools
 License:	GPLv2
 URL:		http://russianfedora.ru
-Source0:	https://github.com/Tigro/Tarballs/raw/master/%{name}-%{version}.tar.bz2
+Source0:	http://koji.russianfedora.ru/storage/%{name}/%{name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:	noarch
@@ -54,6 +54,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sat May 21 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.5-1
+- do not use --nosplitmedia for rawhide
+- copy kickstarts only if directory empty (create-live)
+- run MAKEDEV lo in pungi section
+- added --vcs-configs option to pull configs from git, not from package
+- added new pungi parameter (--isfinal) detection
+- added --local option for using localhost instead official mirrors
+- do not build LiveDVD by -a option
+
 * Mon Feb 28 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.4-1
 - adapt to using Fedora 15 with new pungi
 
