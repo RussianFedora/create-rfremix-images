@@ -6,7 +6,7 @@ Release:	1.R
 Group:		Development/Tools
 License:	GPLv2
 URL:		http://russianfedora.ru
-Source0:	http://download.rfremix.ru/storage/create-rfremix-images/%{name}/%{name}-%{version}.tar.bz2
+Source0:	http://download.rfremix.ru/storage/%{name}/%{name}-%{version}.tar.bz2
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:	noarch
