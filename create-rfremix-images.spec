@@ -1,6 +1,6 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.6
+Version:	0.6.1
 Release:	1.R
 
 Group:		Development/Tools
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov  3 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.6.1-1.R
+- 16 isFinal
+
 * Mon Sep 26 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.6-1.R
 - support RFRemix/Fedora 16
 - requires new livecd-tools
