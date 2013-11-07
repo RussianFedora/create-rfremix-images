@@ -1,0 +1,230 @@
+#!/bin/sh
+
+# This script allow you to create instalation images of
+# Fedora and RFRemix via internet connection.
+
+# Author: Arkady L. Shane <ashejn [AT] gmail [DOT] com>
+
+usage()
+{
+  echo
+  echo "Create Fedora or RFRemix images from Internet"
+  echo
+  echo "Usage: create-install-images --dist <dist name> --ver <version> --arch <arch> [options]"
+  echo
+  echo "    dist name:     Fedora | RFRemix"
+  echo "    version:       supported versions separated by '.' and '-' and rawhide. Ex. 14-Beta, 12.2, rawhide"
+  echo "    arch:          i386 | x86_64 | all"
+  echo "    options:"
+  echo "    --vcs-configs  pull kickstarts from GIT"
+  echo "    --rebuild      only run pungi in created mock environment"
+  echo "    --config <ks>  use custom kickstart file"
+  echo "    --local        use localhost instead of mirrors.rfremix.ru"
+  echo
+  exit 1;
+}
+
+ok()
+{
+  echo -e "\t\t\\033[0;32m[  OK  ]\\033[0;39m"
+}
+
+fail()
+{
+  echo -e "\t\t\\033[0;31m[ FAIL ]\\033[0;39m"
+  exit 1;
+}
+
+LANG=C
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    --dist)
+      DIST=$2
+      shift; shift
+    ;;
+    --ver)
+      VERSION=$2
+      shift; shift
+    ;;
+    --arch)
+      ARCH=$2
+      shift; shift
+    ;;
+    --local)
+      LOCAL="yes"
+      shift
+    ;;
+    --rebuild)
+      REBUILD="yes"
+      shift
+    ;;
+    --vcs-configs)
+      VCS="yes"
+      shift
+    ;;
+    --config)
+      CONFIG=$2
+      shift; shift
+    ;;
+    *)
+      echo "Unknown parameter. Abort..."
+      usage
+    ;;
+  esac
+done
+
+# check dist
+if [ "$DIST" != "Fedora" -a "$DIST" != "RFRemix" ]; then
+  echo "Unknown distribution. Abort..."
+  usage
+fi
+
+LCDIST=$(echo $DIST | awk '{print tolower($0)}')
+
+# Set up paremeters
+BUILDPARAM=""
+RAWHIDEKS="/usr/share/spin-kickstarts/$LCDIST-install-rawhide-$LCDIST.ks"
+RELEASEKS="/usr/share/spin-kickstarts/$LCDIST-install-$LCDIST.ks"
+LOGFILE="/var/tmp/$LCDIST-build.log"
+
+SUPPORT_VERSIONS="18 19 20 rawhide"
+
+# check version
+MOCKVER=$(echo $VERSION | awk -F"." '{ print $1 }' | awk -F"-" '{ print $1 }')
+
+for ver in $SUPPORT_VERSIONS; do
+  if [ "$MOCKVER" != "$ver" ]; then
+    UNKNOWN="1"
+  else
+    UNKNOWN="0"
+    break
+  fi
+done
+
+if [ "$UNKNOWN" == "1" ]; then
+  echo "Unknown version. Abort..."
+  usage
+fi
+
+if [ "$VERSION" == "rawhide" ]; then
+  ISOVER="--ver $(date +%Y%m%d)"
+else
+  ISOVER="--ver $VERSION"
+fi
+
+# check arch
+if [ "$ARCH" == "all" ]; then
+  ARCH="x86_64 i386"
+elif [ "$ARCH" == "i386" -o "$ARCH" == "x86_64" ]; then
+  true
+else
+  echo "Unknown Arch $ARCH. Abort..."
+  usage
+fi
+
+# can we build x86_64 on an i386?
+echo $ARCH | grep x86_64 >> $LOGFILE 2>&1
+
+if [ "$?" -eq 0 -a "$(uname -m)" != "x86_64" ]; then
+  echo "You cannot build x86_64 images on an i386 arch. Abort..."
+  exit 10
+fi 
+
+# check mock config
+for arch in $ARCH; do
+  if [ ! -f /etc/mock/$LCDIST-$MOCKVER-$arch.cfg ]; then
+    echo "Mock config /etc/mock/$LCDIST-$MOCKVER-$arch.cfg not found. Abort"
+    exit 1
+  fi
+done
+
+BUILDPARAM="$BUILDPARAM $ISOVER"
+
+# new final release feature
+if [ "$MOCKVER" != "rawhide" ]; then
+#  uncomment when 16 will be stable
+#  if [ $MOCKVER -ge 15 ]; then
+# comment and replace version to 17 before building 17-Beta
+  if [ $MOCKVER -eq 18 -o $MOCKVER -eq 19 ]; then
+    BUILDPARAM="$BUILDPARAM --isfinal"
+  fi
+fi
+
+echo
+echo "Logging to $LOGFILE"
+
+if [ "$REBUILD" != "yes" ]; then
+  rm -f $LOGFILE
+  for i in $ARCH; do
+    echo -n "Cleaning chroot      -  $i"
+    mock -r $LCDIST-$MOCKVER-$i --clean >> $LOGFILE 2>&1 && ok || fail
+
+    echo -n "Initializing chroot  -  $i"
+    mock -r $LCDIST-$MOCKVER-$i --init >> $LOGFILE 2>&1 && ok || fail
+
+    echo -n "Installing pungi     -  $i"
+    if [ "$VCS" == "yes" ]; then
+      mock -r $LCDIST-$MOCKVER-$i --install MAKEDEV pungi git >> $LOGFILE 2>&1 && ok || fail
+
+      # pull kickstarts
+      if [ "$DIST" == "Fedora" ]; then
+        if [ "$VERSION" == "rawhide" ]; then
+          mock -r $LCDIST-$MOCKVER-$i --chroot "mkdir -p /usr/share/spin-kickstarts/; git clone git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        else
+          mock -r $LCDIST-$MOCKVER-$i --chroot "mkdir -p /usr/share/spin-kickstarts/; git clone -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        fi
+      elif [ "$DIST" == "RFRemix" ]; then
+        if [ "$VERSION" == "rawhide" ]; then
+          mock -r $LCDIST-$MOCKVER-$i --chroot "mkdir -p /usr/share/spin-kickstarts/; git clone git://github.com/Tigro/spin-kickstarts-rfremix.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        else
+          mock -r $LCDIST-$MOCKVER-$i --chroot "mkdir -p /usr/share/spin-kickstarts/; git clone -b f$MOCKVER/master git://github.com/Tigro/spin-kickstarts-rfremix.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        fi
+      fi
+    else
+      mock -r $LCDIST-$MOCKVER-$i --install MAKEDEV pungi $LCDIST-kickstarts >> $LOGFILE 2>&1 && ok || fail
+    fi
+
+    # Some releases ago we should do it.
+    echo -n "Removing database    -  $i"
+    mock -r $LCDIST-$MOCKVER-$i --chroot "rm -f /var/lib/rpm/__db.00*" >> $LOGFILE 2>&1 && ok || fail
+  done
+fi
+
+echo
+echo "Building $DIST-$VERSION-$ARCH-DVD"
+
+for i in $ARCH; do
+  echo "See log in /var/lib/mock/$LCDIST-$MOCKVER-$i/root/builddir/$LCDIST-$VERSION-$i-build.log"
+  echo -n "Creating Install Media  "
+
+  if [ "$VERSION" == "rawhide" -a "$DIST" == "RFRemix" ]; then
+    KS="$RAWHIDEKS"
+  else
+    KS="$RELEASEKS"
+  fi
+
+  if [ ! -z "$CONFIG" ]; then
+    KS="/usr/share/spin-kickstarts/local-install-local.ks"
+  fi
+
+  if [ "$MOCKVER" == "rawhide" ]; then
+    mock -r $LCDIST-$MOCKVER-$i --chroot "sed -i 's!\$releasever!rawhide!g' $RELEASEKS" >> $LOGFILE 2>&1
+  fi
+
+  if [ ! -z "$CONFIG" ]; then
+    mock -r $LCDIST-$MOCKVER-$i --copyin $CONFIG $KS >> $LOGFILE 2>&1
+  fi
+
+  if [ "$LOCAL" == "yes" ]; then
+    mock -r $LCDIST-$MOCKVER-$i --chroot "sed -i 's!http://mirrors.rfremix.ru!http://localhost!g' $KS" >> $LOGFILE 2>&1
+  fi
+
+  # clean temp directories (f15 pungi trouble)
+  mock -r $LCDIST-$MOCKVER-$i --chroot "cd builddir; rm -rf work logs $VERSION;" >> $LOGFILE 2>&1
+
+  mock -r $LCDIST-$MOCKVER-$i --chroot "cd builddir; MAKEDEV lo; pungi -c $KS --name=$DIST --nodebuginfo --nosource \
+    --force $BUILDPARAM > $LCDIST-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
+
+  echo "New distribution created in /var/lib/mock/$LCDIST-$MOCKVER-$i/root/builddir/$VERSION/"
+done

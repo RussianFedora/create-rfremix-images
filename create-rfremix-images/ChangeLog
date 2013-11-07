@@ -1,0 +1,34 @@
+* Thu Nov  7 2013 [0.6.2]
+- update supported distribution version
+- update isFinal distribution version
+- switch SELinux to permissive mode during building live images
+- update livecd-creator parameters
+
+* Thu Nov  3 2011 [0.6.1]
+- Fedora 16 is final
+
+* Mon Sep 26 2011 [0.6]
+- suport Fedora/RFRemix 16
+- support new livecd-tools
+
+* Sat May 21 2011 [0.5]
+- release 0.5
+- do not use --nosplitmedia for rawhide
+- copy kickstarts only if directory empty (create-live)
+- run MAKEDEV lo in pungi section
+- added --vcs-configs option to pull configs from git, not from package
+- added new pungi parameter (--isfinal) detection
+- added --local option for using localhost instead official mirrors
+- do not build LiveDVD by -a option
+
+* Mon Feb 28 2011 [0.4]
+- adapt to using Fedora 15 with new pungi
+
+* Tue Oct 26 2010 [0.3]
+- do not create MeeGo and Games from 'all' build
+
+* Mon Oct 25 2010 [0.2]
+- fix names for MeeGo and LiveDVD-Games
+
+* Sat Oct 23 2010 [0.1]
+- first public release

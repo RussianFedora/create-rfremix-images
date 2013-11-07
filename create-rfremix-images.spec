@@ -1,17 +1,17 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.6.1
+Version:	0.6.2
 Release:	1.R
 
 Group:		Development/Tools
 License:	GPLv2
 URL:		http://russianfedora.ru
-Source0:	http://download.rfremix.ru/storage/%{name}/%{name}-%{version}.tar.bz2
+Source0:	%{name}-%{version}.tar.xz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:	noarch
 Requires:	mock-configs-rfremix
-Requires:	livecd-tools >= 16
+Requires:	livecd-tools >= 19
 Requires:	rfremix-kickstarts
 Requires:	fedora-kickstarts
 
@@ -54,6 +54,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov  7 2013 Arkady L. Shane <ashejn@yandex-team.ru> - 0.6.2-1.R
+- update supported distribution version
+- update isFinal distribution version
+- switch SELinux to permissive mode during building live images
+- update livecd-creator parameters
+
 * Thu Nov  3 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.6.1-1.R
 - 16 isFinal
 
