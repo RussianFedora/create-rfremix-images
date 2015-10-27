@@ -1,20 +1,15 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.6.2
-Release:	1.R
+Version:	0.7.0
+Release:	1%{?dist}
 
 Group:		Development/Tools
 License:	GPLv2
-URL:		http://russianfedora.ru
+URL:		http://russianfedora.pro
 Source0:	%{name}-%{version}.tar.xz
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch:	noarch
 Requires:	mock-configs-rfremix
-Requires:	livecd-tools >= 19
-Requires:	rfremix-kickstarts
-Requires:	fedora-kickstarts
-
 
 %description
 This package contains scripts for creating various images of
@@ -35,25 +30,21 @@ create-live create live CD/DVD images of current RFRemix
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
 install -dD $RPM_BUILD_ROOT%{_bindir}/
 install -dD $RPM_BUILD_ROOT%{_sbindir}/
 install -m 755 create-install* $RPM_BUILD_ROOT%{_bindir}/
-install -m 755 create-live $RPM_BUILD_ROOT%{_sbindir}/
-
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 
 %files
-%defattr(-,root,root,-)
 %doc README ChangeLog README COPYING
 %{_bindir}/create-*
-%{_sbindir}/create-*
 
 
 %changelog
+* Tue Oct 27 2015 Arkady L. Shane <ashejn@yandex-team.ru> - 0.7.0-1.R
+- drop create-live script
+- added build Server and Workstation variants
+
 * Thu Nov  7 2013 Arkady L. Shane <ashejn@yandex-team.ru> - 0.6.2-1.R
 - update supported distribution version
 - update isFinal distribution version
@@ -79,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Feb 28 2011 Arkady L. Shane <ashejn@yandex-team.ru> - 0.4-1
 - adapt to using Fedora 15 with new pungi
 
-* Tue Oct 25 2010 Arkady L. Shane <ashejn@yandex-team.ru> - 0.3-1
+* Mon Oct 25 2010 Arkady L. Shane <ashejn@yandex-team.ru> - 0.3-1
 - do not build MeeGo and Games lives at build "all"
 
 * Mon Oct 25 2010 Arkady L. Shane <ashejn@yandex-team.ru> - 0.2-1

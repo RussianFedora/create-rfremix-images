@@ -1,3 +1,8 @@
+* Tue Oct 27 2015 [0.7.0]
+- drop create-live script as it in kickstart project
+- rewrite create-install-images for new Server and
+  Workstation variants
+
 * Thu Nov  7 2013 [0.6.2]
 - update supported distribution version
 - update isFinal distribution version
