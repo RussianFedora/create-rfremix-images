@@ -10,7 +10,7 @@ usage()
   echo
   echo "Create Fedora or RFRemix images from Internet"
   echo
-  echo "Usage: create-install-images --dist <dist name> --ver <version> --arch <arch> [options]"
+  echo "Usage: create-install-images --family <dist name> --variant <name> --ver <version> --arch <arch> [options]"
   echo
   echo "    family name:   Fedora | RFRemix"
   echo "    variant name:  Server | Workstation | SW"
