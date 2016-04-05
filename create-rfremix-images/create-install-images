@@ -93,10 +93,10 @@ BUILDPARAM=""
 KSPATH="/usr/share/spin-kickstarts"
 LOGFILE="/var/tmp/${FAMILY,,}-build.log"
 
-SUPPORT_VERSIONS="18 19 20 23"
+SUPPORT_VERSIONS="18 19 20 23 24"
 
 # check version
-MOCKVER=$(echo $VERSION | awk -F"." '{ print $1 }' | awk -F"-" '{ print $1 }')
+MOCKVER=$(echo $VERSION | awk -F[_.-] '{ print $1 }') 
 
 for ver in $SUPPORT_VERSIONS; do
   if [ "$MOCKVER" != "$ver" ]; then
