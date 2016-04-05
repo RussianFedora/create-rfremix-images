@@ -41,7 +41,7 @@ install -m 755 create-install* $RPM_BUILD_ROOT%{_bindir}/
 
 
 %changelog
-* Tue Apr  5 2015 Arkady L. Shane <ashejn@yandex-team.ru> - 0.7.1-1.R
+* Tue Apr  5 2016 Arkady L. Shane <ashejn@yandex-team.ru> - 0.7.1-1.R
 - added support of 24 version
 - fix cation
 
