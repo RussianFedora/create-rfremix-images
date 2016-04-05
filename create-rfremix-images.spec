@@ -1,6 +1,6 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.7.0
+Version:	0.7.1
 Release:	1%{?dist}
 
 Group:		Development/Tools
@@ -41,6 +41,10 @@ install -m 755 create-install* $RPM_BUILD_ROOT%{_bindir}/
 
 
 %changelog
+* Tue Apr  5 2015 Arkady L. Shane <ashejn@yandex-team.ru> - 0.7.1-1.R
+- added support of 24 version
+- fix cation
+
 * Tue Oct 27 2015 Arkady L. Shane <ashejn@yandex-team.ru> - 0.7.0-1.R
 - drop create-live script
 - added build Server and Workstation variants
