@@ -214,7 +214,7 @@ for i in $ARCH; do
     fi
 
     echo -n "Building $FAMILY-$variant-$VERSION-$i-DVD"
-    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "MAKEDEV lo; cd builddir && pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
+    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "MAKEDEV lo; rm -f /var/cache/pungi/yumlock.lock; cd builddir && pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
   done
 
   echo "New distribution created in $MOCK_HOME/${FAMILY,,}-$MOCKVER-$i/root/builddir/$VERSION/"

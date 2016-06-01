@@ -1,3 +1,8 @@
+* Wed Jun  1 2016 [0.8.1]
+- improve config_opts['basedir'] detection
+- remove pungi lock
+- update kickstart if --rebuild option is enabled
+
 * Wed Jun  1 2016 [0.8.0]
 - make 24 version final
 - detect mock basedir path
