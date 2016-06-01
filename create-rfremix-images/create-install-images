@@ -95,6 +95,15 @@ LOGFILE="/var/tmp/${FAMILY,,}-build.log"
 
 SUPPORT_VERSIONS="18 19 20 23 24"
 
+# detect config_opts['basedir']
+grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg > /dev/null
+
+if [ $? -eq 0 ]; then
+  MOCK_HOME="$(grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg | awk '{ print $NF }' | sed "s@'@@g")"
+else
+  MOCK_HOME="/var/lib/mock"
+fi
+
 # check version
 MOCKVER=$(echo $VERSION | awk -F"." '{ print $1 }' | awk -F"-" '{ print $1 }' | awk -F"_" '{ print $1 }')
 
@@ -163,9 +172,9 @@ if [ "$REBUILD" != "yes" ]; then
 
       # pull kickstarts
       if [ "$FAMILY" == "Fedora" ]; then
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone -b --depth=1 f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
       elif [ "$FAMILY" == "RFRemix" ]; then
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone -b f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone -b --depth=1 f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
       fi
     else
       mock -r ${FAMILY,,}-$MOCKVER-$i --install MAKEDEV pungi ${FAMILY,,}-kickstarts >> $LOGFILE 2>&1 && ok || fail
@@ -175,12 +184,23 @@ if [ "$REBUILD" != "yes" ]; then
     echo -n "Removing database    -  $i"
     mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -f /var/lib/rpm/__db.00*" >> $LOGFILE 2>&1 && ok || fail
   done
+else
+  for i in $ARCH; do
+  # update kickstarts
+      if [ "$FAMILY" == "Fedora" ]; then
+        echo "Updating kickstarts for $i"
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -rf /usr/share/spin-kickstarts/; git clone --depth=1 -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+      elif [ "$FAMILY" == "RFRemix" ]; then
+        echo "Updating kickstarts for $i"
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -rf /usr/share/spin-kickstarts/; git clone --depth=1 -b f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+      fi
+  done
 fi
 
 echo
 
 for i in $ARCH; do
-  echo "See log in /var/lib/mock/${FAMILY,,}-$MOCKVER-$i/root/builddir/${FAMILY,,}-$VERSION-$i-build.log"
+  echo "See log in $MOCK_HOME/${FAMILY,,}-$MOCKVER-$i/root/builddir/${FAMILY,,}-$VERSION-$i-build.log"
 
   for variant in $VARIANT; do
 
@@ -196,14 +216,6 @@ for i in $ARCH; do
     echo -n "Building $FAMILY-$variant-$VERSION-$i-DVD"
     mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "MAKEDEV lo; cd builddir && pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
   done
-
-  grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg > /dev/null
-
-  if [ $? -eq 0 ]; then
-    MOCK_HOME="$(grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg | awk '{ print $NF }' | sed "s@'@@g")"
-  else
-    MOCK_HOME="/var/lib/mock"
-  fi
 
   echo "New distribution created in $MOCK_HOME/${FAMILY,,}-$MOCKVER-$i/root/builddir/$VERSION/"
 done
