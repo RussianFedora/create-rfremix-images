@@ -1,3 +1,12 @@
+* Wed Jun  1 2016 [0.8.0]
+- make 24 version final
+- detect mock basedir path
+- fix build place for 24 version
+
+* Tue Apr  5 2016 [0.7.1]
+- added support of 24 version
+- fix cation
+
 * Tue Oct 27 2015 [0.7.0]
 - drop create-live script as it in kickstart project
 - rewrite create-install-images for new Server and

@@ -10,7 +10,7 @@ usage()
   echo
   echo "Create Fedora or RFRemix images from Internet"
   echo
-  echo "Usage: create-install-images --family <dist name> --variant <name> --ver <version> --arch <arch> [options]"
+  echo "Usage: create-install-images --family <dist name> --variant <variant name> --ver <version> --arch <arch> [options]"
   echo
   echo "    family name:   Fedora | RFRemix"
   echo "    variant name:  Server | Workstation | SW"
@@ -96,7 +96,7 @@ LOGFILE="/var/tmp/${FAMILY,,}-build.log"
 SUPPORT_VERSIONS="18 19 20 23 24"
 
 # check version
-MOCKVER=$(echo $VERSION | awk -F[_.-] '{ print $1 }') 
+MOCKVER=$(echo $VERSION | awk -F"." '{ print $1 }' | awk -F"-" '{ print $1 }' | awk -F"_" '{ print $1 }')
 
 for ver in $SUPPORT_VERSIONS; do
   if [ "$MOCKVER" != "$ver" ]; then
@@ -141,7 +141,7 @@ done
 BUILDPARAM="$BUILDPARAM $ISOVER"
 
 # new final release feature
-if [ $MOCKVER -eq 23 -o $MOCKVER -eq 22 ]; then
+if [ $MOCKVER -eq 24 -o $MOCKVER -eq 23 -o $MOCKVER -eq 22 ]; then
   BUILDPARAM="$BUILDPARAM --isfinal"
 fi
 
@@ -194,8 +194,16 @@ for i in $ARCH; do
     fi
 
     echo -n "Building $FAMILY-$variant-$VERSION-$i-DVD"
-    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd builddir; MAKEDEV lo; pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
+    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "MAKEDEV lo; cd builddir && pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
   done
 
-  echo "New distribution created in /var/lib/mock/${FAMILY,,}-$MOCKVER-$i/root/builddir/$VERSION/"
+  grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg > /dev/null
+
+  if [ $? -eq 0 ]; then
+    MOCK_HOME="$(grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg | awk '{ print $NF }' | sed "s@'@@g")"
+  else
+    MOCK_HOME="/var/lib/mock"
+  fi
+
+  echo "New distribution created in $MOCK_HOME/${FAMILY,,}-$MOCKVER-$i/root/builddir/$VERSION/"
 done
