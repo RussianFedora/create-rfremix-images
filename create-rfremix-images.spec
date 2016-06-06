@@ -1,6 +1,6 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.8.1
+Version:	0.8.2
 Release:	1%{?dist}
 
 Group:		Development/Tools
@@ -41,6 +41,9 @@ install -m 755 create-install* $RPM_BUILD_ROOT%{_bindir}/
 
 
 %changelog
+* Mon Jun  6 2016 Arkady L. Shane <ashejn@yandex-team.ru> - 0.8.2-1.R
+- fix git commands
+
 * Wed Jun  1 2016 Arkady L. Shane <ashejn@yandex-team.ru> - 0.8.1-1.R
 - improve config_opts['basedir'] detection
 - remove pungi lock before build
