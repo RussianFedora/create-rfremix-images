@@ -172,9 +172,10 @@ if [ "$REBUILD" != "yes" ]; then
 
       # pull kickstarts
       if [ "$FAMILY" == "Fedora" ]; then
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone -b --depth=1 f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone --depth=1 -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
       elif [ "$FAMILY" == "RFRemix" ]; then
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone -b --depth=1 f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone --depth=1 -b f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" 
+#>> $LOGFILE 2>&1
       fi
     else
       mock -r ${FAMILY,,}-$MOCKVER-$i --install MAKEDEV pungi ${FAMILY,,}-kickstarts >> $LOGFILE 2>&1 && ok || fail
@@ -189,10 +190,10 @@ else
   # update kickstarts
       if [ "$FAMILY" == "Fedora" ]; then
         echo "Updating kickstarts for $i"
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -rf /usr/share/spin-kickstarts/; git clone --depth=1 -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd /usr/share/spin-kickstarts/ &&  git pull origin f$MOCKVER" >> $LOGFILE 2>&1
       elif [ "$FAMILY" == "RFRemix" ]; then
         echo "Updating kickstarts for $i"
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -rf /usr/share/spin-kickstarts/; git clone --depth=1 -b f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd /usr/share/spin-kickstarts/ &&  git pull origin f$MOCKVER/master" >> $LOGFILE 2>&1
       fi
   done
 fi
