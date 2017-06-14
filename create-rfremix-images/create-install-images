@@ -93,7 +93,7 @@ BUILDPARAM=""
 KSPATH="/usr/share/spin-kickstarts"
 LOGFILE="/var/tmp/${FAMILY,,}-build.log"
 
-SUPPORT_VERSIONS="18 19 20 23 24 25"
+SUPPORT_VERSIONS="18 19 20 23 24 25 26"
 
 # detect config_opts['basedir']
 grep "^config_opts\['basedir'\]" /etc/mock/site-defaults.cfg > /dev/null
@@ -150,7 +150,7 @@ done
 BUILDPARAM="$BUILDPARAM $ISOVER"
 
 # new final release feature
-if [ $MOCKVER -eq 24 -o $MOCKVER -eq 23 -o $MOCKVER -eq 22 ]; then
+if [ $MOCKVER -eq 26 -o $MOCKVER -eq 25 -o $MOCKVER -eq 24 ]; then
   BUILDPARAM="$BUILDPARAM --isfinal"
 fi
 
