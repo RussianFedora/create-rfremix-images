@@ -1,6 +1,6 @@
 Summary:	Scripts to build RFRemix install media and live CD/DVD
 Name:		create-rfremix-images
-Version:	0.8.3
+Version:	26.0.0
 Release:	1%{?dist}
 
 Group:		Development/Tools
@@ -41,6 +41,11 @@ install -m 755 create-install* $RPM_BUILD_ROOT%{_bindir}/
 
 
 %changelog
+* Wed Jun 14 2017 Arkady L. Shane <ashejn@russianfedora.pro> - 26.0.0-1.R
+- new versioning
+- added support of 26 version and make it final
+- fix creation of DVD image if all arches were selected
+
 * Fri Nov 25 2016 Arkady L. Shane <ashejn@yandex-team.ru> - 0.8.3-1
 - support 25 version
 
