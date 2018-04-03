@@ -168,7 +168,7 @@ if [ "$REBUILD" != "yes" ]; then
 
     echo -n "Installing pungi     -  $i"
     if [ "$VCS" == "yes" ]; then
-      mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --install MAKEDEV pungi-legacy libselinux-python yum python2-kobo python2-productmd python-lockfile createrepo python2-kickstart git >> $LOGFILE 2>&1 && ok || fail
+      mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --install MAKEDEV pungi-legacy lorax repoview libselinux-python yum python2-kobo python2-productmd python-lockfile createrepo python2-kickstart git >> $LOGFILE 2>&1 && ok || fail
 
       # pull kickstarts
       if [ "$FAMILY" == "Fedora" ]; then
