@@ -150,7 +150,7 @@ done
 BUILDPARAM="$BUILDPARAM $ISOVER"
 
 # new final release feature
-if [ $MOCKVER -eq 26 -o $MOCKVER -eq 25 -o $MOCKVER -eq 24 ]; then
+if [ $MOCKVER -eq 26 -o $MOCKVER -eq 25 -o $MOCKVER -eq 27 ]; then
   BUILDPARAM="$BUILDPARAM --isfinal"
 fi
 
@@ -161,10 +161,10 @@ if [ "$REBUILD" != "yes" ]; then
   rm -f $LOGFILE
   for i in $ARCH; do
     echo -n "Cleaning chroot      -  $i"
-    mock -r ${FAMILY,,}-$MOCKVER-$i --clean >> $LOGFILE 2>&1 && ok || fail
+    mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --clean >> $LOGFILE 2>&1 && ok || fail
 
     echo -n "Initializing chroot  -  $i"
-    mock -r ${FAMILY,,}-$MOCKVER-$i --init >> $LOGFILE 2>&1 && ok || fail
+    mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --init >> $LOGFILE 2>&1 && ok || fail
 
     echo -n "Installing pungi     -  $i"
     if [ "$VCS" == "yes" ]; then
@@ -172,28 +172,28 @@ if [ "$REBUILD" != "yes" ]; then
 
       # pull kickstarts
       if [ "$FAMILY" == "Fedora" ]; then
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone --depth=1 -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
+        mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone --depth=1 -b f$MOCKVER git://git.fedorahosted.org/spin-kickstarts.git /usr/share/spin-kickstarts/" >> $LOGFILE 2>&1
       elif [ "$FAMILY" == "RFRemix" ]; then
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone --depth=1 -b f$MOCKVER/master --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" 
+        mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "git clone --depth=1 -b f$MOCKVER/ksurl --recursive git://github.com/RussianFedora/rfremix-kickstarts.git /usr/share/spin-kickstarts/" 
 #>> $LOGFILE 2>&1
       fi
     else
-      mock -r ${FAMILY,,}-$MOCKVER-$i --install MAKEDEV pungi ${FAMILY,,}-kickstarts >> $LOGFILE 2>&1 && ok || fail
+      mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --install MAKEDEV pungi-legacy lorax repoview libselinux-python yum python2-kobo python2-productmd python-lockfile createrepo python2-kickstart ${FAMILY,,}-kickstarts >> $LOGFILE 2>&1 && ok || fail
     fi
 
     # Some releases ago we should do it.
     echo -n "Removing database    -  $i"
-    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -f /var/lib/rpm/__db.00*" >> $LOGFILE 2>&1 && ok || fail
+    mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "rm -f /var/lib/rpm/__db.00*" >> $LOGFILE 2>&1 && ok || fail
   done
 else
   for i in $ARCH; do
   # update kickstarts
       if [ "$FAMILY" == "Fedora" ]; then
         echo "Updating kickstarts for $i"
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd /usr/share/spin-kickstarts/ &&  git pull origin f$MOCKVER" >> $LOGFILE 2>&1
+        mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd /usr/share/spin-kickstarts/ &&  git pull origin f$MOCKVER" >> $LOGFILE 2>&1
       elif [ "$FAMILY" == "RFRemix" ]; then
         echo "Updating kickstarts for $i"
-        mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd /usr/share/spin-kickstarts/ &&  git pull origin f$MOCKVER/master" >> $LOGFILE 2>&1
+        mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd /usr/share/spin-kickstarts/ &&  git pull origin f$MOCKVER/ksurl" >> $LOGFILE 2>&1
       fi
   done
 fi
@@ -206,14 +206,14 @@ for i in $ARCH; do
   for variant in $VARIANT; do
 
     # clean temp directories (f15 pungi trouble)
-    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd builddir; rm -rf work/$variant $VERSION/$variant;" >> $LOGFILE 2>&1
+    mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "cd builddir; rm -rf work/$variant $VERSION/$variant;" >> $LOGFILE 2>&1
 
     if [ "$variant" == "Workstation" ]; then
       BUILDPARAM="$BUILDPARAM --no-dvd"
     fi
 
     echo -n "Building $FAMILY-$variant-$VERSION-$i-DVD"
-    mock -r ${FAMILY,,}-$MOCKVER-$i --chroot "MAKEDEV lo; rm -f /var/cache/pungi/yumlock.lock; cd builddir && pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
+    mock --dnf -r ${FAMILY,,}-$MOCKVER-$i --chroot "MAKEDEV lo; rm -f /var/cache/pungi/yumlock.lock; cd builddir && pungi -c $KSPATH/${FAMILY,,}-install-${variant,,}.ks --family=$FAMILY --variant=$variant --ver=$VERSION --nodebuginfo --nosource --force --installpkgs fedora-productimg-${variant,,} $BUILDPARAM > ${FAMILY,,}-$VERSION-$i-build.log 2>&1" >> $LOGFILE 2>&1 && ok || fail
     BUILDPARAM="${BUILPARAM/ --no-dvd/}"
   done
 
